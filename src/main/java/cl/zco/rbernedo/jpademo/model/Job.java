@@ -1,9 +1,14 @@
 package cl.zco.rbernedo.jpademo.model;
 
+import javax.persistence.*;
 import java.util.Date;
 
+@Entity
+@Table(name="jobs")
 public class Job {
-	
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 	private String name;
 	private String description;
@@ -13,6 +18,10 @@ public class Job {
 	private String image = "no-image.png";
 	private String status;
 	private String details;
+
+	//@Transient // this is to omit this attribute in the mapping process
+	@OneToOne
+	@JoinColumn(name="categoryId")
 	private Category category;
 
 	public Job() {
