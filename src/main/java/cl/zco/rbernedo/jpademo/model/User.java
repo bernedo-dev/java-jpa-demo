@@ -1,20 +1,39 @@
 package cl.zco.rbernedo.jpademo.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 @Entity
 @Table(name="users")
 public class User {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
     private String username;
     private String name;
     private String email;
     private String password;
-    private String status;
+    private Integer status;
     private Date createdAt;
+
+    @ManyToMany(fetch=FetchType.EAGER)
+    @JoinTable(
+            name="userprofile",
+            joinColumns = @JoinColumn(name = "userId"),
+            inverseJoinColumns = @JoinColumn(name = "profileId")
+    )
+    private List<Profile> profiles;
+
+    public void addProfile(Profile profile){
+        if(profiles == null){
+            profiles = new LinkedList<Profile>();
+        }
+        profiles.add(profile);
+    }
 
     public Integer getId() {
         return id;
@@ -56,11 +75,11 @@ public class User {
         this.password = password;
     }
 
-    public String getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 
@@ -70,6 +89,14 @@ public class User {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public List<Profile> getProfiles() {
+        return profiles;
+    }
+
+    public void setProfiles(List<Profile> profiles) {
+        this.profiles = profiles;
     }
 
     @Override
@@ -82,6 +109,7 @@ public class User {
                 ", password='" + password + '\'' +
                 ", status='" + status + '\'' +
                 ", createdAt=" + createdAt +
+                ", profiles=" + profiles +
                 '}';
     }
 }

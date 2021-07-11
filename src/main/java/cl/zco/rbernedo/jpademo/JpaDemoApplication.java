@@ -2,6 +2,8 @@ package cl.zco.rbernedo.jpademo;
 
 import cl.zco.rbernedo.jpademo.model.Category;
 import cl.zco.rbernedo.jpademo.model.Job;
+import cl.zco.rbernedo.jpademo.model.Profile;
+import cl.zco.rbernedo.jpademo.model.User;
 import cl.zco.rbernedo.jpademo.repository.CategoriesRepository;
 import cl.zco.rbernedo.jpademo.repository.JobsRepository;
 import cl.zco.rbernedo.jpademo.repository.ProfilesRepository;
@@ -56,7 +58,14 @@ public class JpaDemoApplication implements CommandLineRunner {
 		//findAllWithPagination();
 		//findAllWithPaginationAndOrdered();
 		//searchJobs();
-		saveJob();
+		//saveJob();
+		//createProfiles();
+		//createUserWithProfiles();
+		//findUser();
+		//findJobByStatus();
+		//findJobsByFeaturedAndStatus();
+		//findJobsSalary();
+		findJobByStates();
 	}
 
 	private void save(){
@@ -188,6 +197,94 @@ public class JpaDemoApplication implements CommandLineRunner {
 		cat.setId(15);
 		job.setCategory(cat);
 		jobsRepo.save(job);
+	}
+
+	private void createProfiles(){
+		profilesRepo.saveAll(getApplicationProfiles());
+	}
+
+	private List<Profile> getApplicationProfiles(){
+		List<Profile> list = new LinkedList<Profile>();
+		Profile profile1 = new Profile("SUPERVISOR");
+		Profile profile2 = new Profile("ADMINISTRADOR");
+		Profile profile3 = new Profile("USUARIO");
+		list.add(profile1);
+		list.add(profile2);
+		list.add(profile3);
+		return list;
+	}
+
+	private void createUserWithProfiles(){
+		User user = new User();
+		user.setName("Rufo Bernedo");
+		user.setEmail("rufino.bernedo@gmail.com");
+		user.setCreatedAt(new Date());
+		user.setUsername("rufo");
+		user.setPassword("12345");
+		user.setStatus(1);
+		Profile p1 = new Profile();
+		p1.setId(2);
+		Profile p2 = new Profile();
+		p2.setId(3);
+		user.addProfile(p1);
+		user.addProfile(p2);
+		usersRepo.save(user);
+	}
+
+	private void findUser(){
+		Optional<User> optional = usersRepo.findById(1);
+		if(optional.isPresent()){
+			User user = optional.get();
+			System.out.println("Usuario: "+user.getName());
+			System.out.println("Perfiles asignados: ");
+			for(Profile p : user.getProfiles()){
+				System.out.println(p.getProfile());
+			}
+		}else{
+			System.out.println("Usuario no encontrado");
+		}
+	}
+
+	private void findJobByStatus(){
+		List<Job> jobs = jobsRepo.findByStatus("Creada");
+		System.out.println("Registros encontrados: "+jobs.size());
+		for(Job job : jobs){
+			System.out.println(job.getId()+": "+job.getName()+": "+job.getStatus());
+		}
+	}
+
+	/**
+	 * Query Method: find jobs by featured and status and order by id desc
+	 */
+	private void findJobsByFeaturedAndStatus(){
+		List<Job> jobs = jobsRepo.findByFeaturedAndStatusOrderByIdDesc(1,"Creada");
+		System.out.println("Registros encontrados: "+jobs.size());
+		for(Job job : jobs){
+			System.out.println(job.getId()+": "+job.getName()+": "+job.getStatus()+": "+job.getFeatured());
+		}
+	}
+
+	/**
+	 * Query Method: find jobs with salary between values
+	 */
+	private void findJobsSalary(){
+		List<Job> jobs = jobsRepo.findBySalaryBetweenOrderBySalaryDesc(7000,14000);
+		System.out.println("Registros encontrados: "+jobs.size());
+		for(Job job : jobs){
+			System.out.println(job.getId()+": "+job.getName()+": "+job.getStatus()+": $"+job.getSalary());
+		}
+	}
+
+	/**
+	 * Query Method: find jobs by many status
+	 */
+	private void findJobByStates(){
+		String[] states = new String[]{"Eliminada","Creada"};
+		List<Job> jobs = jobsRepo.findByStatusIn(states);
+		System.out.println("Registros encontrados: "+jobs.size());
+		for(Job job : jobs){
+			System.out.println(job.getId()+": "+job.getName()+": "+job.getStatus()+": $"+job.getSalary());
+		}
 	}
 
 }
